@@ -40,6 +40,8 @@ while running:
     ud = values[2]
     yaw = values[3]
 
+    sendControls(fb, lr, ud, yaw, 10)
+
 
 
     

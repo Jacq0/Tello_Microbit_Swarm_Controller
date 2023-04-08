@@ -8,7 +8,10 @@ microbit = 'COM15'
 port = Serial(microbit, 115200, timeout=0, bytesize=8, parity='N', stopbits=1)
 
 #denote a controller deadzone so the drone stops moving below this angle (relative to 0)
-deadzone = 15 
+deadzone = 0.15
+
+#range of the angles of joystick movement
+angleRange = 45
 
 #read serial line in, timeout in case nothing is received
 def readSerialLine(port, timeout):
@@ -32,28 +35,64 @@ def checkDeadzone(val, angle):
         return True
     return False
 
+#read the serial line, split it and normalise the values before return.
 def returnInputValues():
-    line = splitLine(readSerialLine(port, 0.5))
+    line = calculateReturnValues(listToFloat(splitLine(readSerialLine(port, 0.5))), deadzone)
 
     if len(line) >= 6:
         return line[0:5]
+    else:
+        return line
+    
+def listToFloat(list):
+    newList = []
 
+    for i in list:
+        if i != '':
+            newList.append(float(i))
 
-while True:
-    line = splitLine(readSerialLine(port, 0.5))
-    currPitch = 0
-    currRoll = 0
-    currAlt = 0
-    currYaw = 0
-    if len(line) >= 4:
-        currPitch = int(line[0])
-        currRoll = int(line[1])
-        currAlt = int(line[2])
-        currYaw = int(line[3])
+    return newList
 
-    #if checkDeadzone(currPitch, deadzone):
-    print("FB: " + str(currPitch))
-    #if checkDeadzone(currRoll, deadzone):
-    print("LR: " + str(currRoll))
-    print("UD: " + str(currAlt))
-    print("Yaw: " + str(currYaw))
+def normalise(val, range):
+    if val > range:
+        val = 45
+    if val < -range:
+        val = -45
+    
+    return val/range
+
+#calculate a normalised values list, 0 if inside the deadzone
+def calculateReturnValues(values, deadzone):
+    returnVals = []
+
+    for val in values:
+        nVal = normalise(val, angleRange)
+
+        if nVal < deadzone and nVal > -deadzone:
+            returnVals.append(0)
+        else:
+            returnVals.append(nVal)
+
+    return returnVals
+            
+def testMethod():
+    while True:
+        line = returnInputValues()
+        currPitch = 0
+        currRoll = 0
+        currAlt = 0
+        currYaw = 0
+        if len(line) >= 4:
+            currPitch = line[0]
+            currRoll = line[1]
+            currAlt = line[2]
+            currYaw = line[3]
+
+        #if checkDeadzone(currPitch, deadzone):
+        print("FB: " + str(currPitch))
+        #if checkDeadzone(currRoll, deadzone):
+        print("LR: " + str(currRoll))
+        print("UD: " + str(currAlt))
+        print("Yaw: " + str(currYaw))
+
+testMethod()
