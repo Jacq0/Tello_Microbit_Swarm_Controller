@@ -2,7 +2,10 @@ from serial import *
 from time import time
 from time import sleep
 
-port = Serial('COM15', 115200, timeout=0, bytesize=8, parity='N', stopbits=1)
+#the port of the microbit receiver
+microbit = 'COM15'
+
+port = Serial(microbit, 115200, timeout=0, bytesize=8, parity='N', stopbits=1)
 
 #denote a controller deadzone so the drone stops moving below this angle (relative to 0)
 deadzone = 15 
@@ -28,6 +31,13 @@ def checkDeadzone(val, angle):
     if abs(val) > angle:
         return True
     return False
+
+def returnInputValues():
+    line = splitLine(readSerialLine(port, 0.5))
+
+    if len(line) >= 6:
+        return line[0:5]
+
 
 while True:
     line = splitLine(readSerialLine(port, 0.5))
