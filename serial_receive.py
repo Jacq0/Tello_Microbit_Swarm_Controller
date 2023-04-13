@@ -25,6 +25,15 @@ def readSerialLine(port, timeout):
             break
     return line[:-2] #return the line regardless if we got data for not, minus the return characters
 
+#separate the list into control and takeoff/land values
+def getControlValues(list):
+    if len(list) == 6:
+        return list[0:4]
+
+def getTakeoffLandValues(list):
+    if len(list) == 6:
+        return list[-2:]
+
 #split the serial line and return an array of values from microbit controllers
 def splitLine(line):
     return line.strip().split('|')
@@ -37,12 +46,13 @@ def checkDeadzone(val, angle):
 
 #read the serial line, split it and normalise the values before return.
 def returnInputValues():
-    line = calculateReturnValues(listToFloat(splitLine(readSerialLine(port, 0.5))), deadzone)
+    line = splitLine(readSerialLine(port, 0.5))
+    control = calculateReturnValues(listToFloat(getControlValues(line)), deadzone)
+    tol = getTakeoffLandValues(line)
 
-    if len(line) >= 6:
-        return line[0:5]
-    else:
-        return line
+    inputs = [control, tol]
+
+    return inputs
     
 def listToFloat(list):
     newList = []
@@ -77,16 +87,20 @@ def calculateReturnValues(values, deadzone):
             
 def testMethod():
     while True:
-        line = returnInputValues()
+        controls = returnInputValues()
         currPitch = 0
         currRoll = 0
         currAlt = 0
         currYaw = 0
-        if len(line) >= 4:
-            currPitch = line[0]
-            currRoll = line[1]
-            currAlt = line[2]
-            currYaw = line[3]
+        takeoff = 0
+        land = 0
+        if len(controls) >= 2:
+            currPitch = controls[0][0]
+            currRoll = controls[0][1]
+            currAlt = controls[0][2]
+            currYaw = controls[0][3]
+            takeoff = controls[1][0]
+            land = controls[1][1]
 
         #if checkDeadzone(currPitch, deadzone):
         print("FB: " + str(currPitch))
@@ -94,5 +108,6 @@ def testMethod():
         print("LR: " + str(currRoll))
         print("UD: " + str(currAlt))
         print("Yaw: " + str(currYaw))
-
+        print("Takeoff: " + str(takeoff))
+        print("Land: " + str(land))
 testMethod()

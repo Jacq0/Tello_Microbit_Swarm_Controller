@@ -32,6 +32,7 @@ while running:
         stopDrones()
         landDrones()
         running = False
+        
     if values[4] == 1:
         takeoffDrones()
 
@@ -40,7 +41,7 @@ while running:
     ud = values[2]
     yaw = values[3]
 
-    sendControls(fb, lr, ud, yaw, 10)
+    sendControls(fb, lr, ud, yaw, 5)
 
 
 
