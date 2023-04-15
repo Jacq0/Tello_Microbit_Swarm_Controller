@@ -4,6 +4,7 @@ import time
 
 #if the program is running or not
 running = True
+inFlight = False
 
 #the time interval so we don't spam the drones with commands.
 lastTick = int(time.time() * 1000) #time in millis
@@ -32,24 +33,27 @@ def stopDrones():
         drone.set_speed(0)
 
 while running:
-    if (lastTick+interval) < time():
+    if (lastTick+interval) < int(time.time() * 1000):
         values = sr.returnInputValues()
+
+        if values[4] == 1:
+            takeoffDrones()
+            inFlight = True
 
         if values[5] == 1:
             stopDrones()
             landDrones()
+            inFlight = False
             running = False
-            
-        if values[4] == 1:
-            takeoffDrones()
 
-        fb = values[0]
-        lr = values[1]
-        ud = values[2]
-        yaw = values[3]
+        if inFlight:          
+            fb = values[0]
+            lr = values[1]
+            ud = values[2]
+            yaw = values[3]
 
-        sendControls(fb, lr, ud, yaw, 5)
-        lastTick = int(time.time() * 1000)
+            sendControls(fb, lr, ud, yaw, 5)
+            lastTick = int(time.time() * 1000)
 
 
 

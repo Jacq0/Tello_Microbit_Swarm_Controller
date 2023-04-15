@@ -110,4 +110,7 @@ def testMethod():
         print("Yaw: " + str(currYaw))
         print("Takeoff: " + str(takeoff))
         print("Land: " + str(land))
-testMethod()
+
+#run test method if not imported
+if __name__ == "__main__":
+    testMethod()
