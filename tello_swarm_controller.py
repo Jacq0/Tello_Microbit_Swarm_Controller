@@ -8,10 +8,10 @@ inFlight = False
 
 #the time interval so we don't spam the drones with commands.
 lastTick = int(time.time() * 1000) #time in millis
-interval = 100 
+interval = 250
 
 #the IP addresses of the tello drones
-ips = ["192.168.1.63", "192.168.1.64"]
+ips = ["192.168.1.3","192.168.1.4"]
 
 swarm = TelloSwarm.fromIps(ips)
 swarm.connect()
@@ -26,34 +26,37 @@ def takeoffDrones():
 
 def sendControls(fb, ud, lr, yaw, speed):
     for drone in swarm:
-        drone.send_rc_control(lr*speed, fb*speed, ud*speed, yaw*speed)
+        drone.send_rc_control(int(lr*speed), int(fb*speed), int(ud*speed), int(yaw*speed))
 
 def stopDrones():
     for drone in swarm:
         drone.set_speed(0)
 
 while running:
-    if (lastTick+interval) < int(time.time() * 1000):
-        values = sr.returnInputValues()
+    values = sr.returnInputValues()
 
-        if values[4] == 1:
+    if (lastTick+interval) < int(time.time() * 1000):
+        print(values)
+
+        if int(values[1][0]) == 1 and not inFlight:
             takeoffDrones()
             inFlight = True
 
-        if values[5] == 1:
+        if int(values[1][1]) == 1 and inFlight:
             stopDrones()
             landDrones()
             inFlight = False
             running = False
 
         if inFlight:          
-            fb = values[0]
-            lr = values[1]
-            ud = values[2]
-            yaw = values[3]
+            fb = values[0][0]
+            lr = values[0][1]
+            ud = values[0][2]
+            yaw = values[0][3]
 
-            sendControls(fb, lr, ud, yaw, 5)
-            lastTick = int(time.time() * 1000)
+            sendControls(fb, lr, ud, yaw, 30)
+
+        lastTick = int(time.time() * 1000)
 
 
 
