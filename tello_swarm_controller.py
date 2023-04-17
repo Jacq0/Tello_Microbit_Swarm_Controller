@@ -32,6 +32,15 @@ def stopDrones():
     for drone in swarm:
         drone.set_speed(0)
 
+def flipForward():
+    for drone in swarm:
+        drone.flip_forward()
+
+def flipBackwards():
+    for drone in swarm:
+        drone.flip_back()
+    
+
 while running:
     values = sr.returnInputValues()
 
@@ -43,10 +52,16 @@ while running:
             inFlight = True
 
         if int(values[1][1]) == 1 and inFlight:
-            stopDrones()
+            #stopDrones()
             landDrones()
             inFlight = False
             running = False
+
+        #if int(values[1][2]) == 1 and inFlight:
+            #flipForward()
+        
+        #if int(values[1][3]) == 1 and inFlight:
+            #flipBackwards()
 
         if inFlight:          
             fb = values[0][0]
@@ -54,7 +69,7 @@ while running:
             ud = values[0][2]
             yaw = values[0][3]
 
-            sendControls(fb, lr, ud, yaw, 30)
+            sendControls(fb, ud, lr, yaw, 50)
 
         lastTick = int(time.time() * 1000)
 

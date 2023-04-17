@@ -47,10 +47,13 @@ def checkDeadzone(val, angle):
 #read the serial line, split it and normalise the values before return.
 def returnInputValues():
     line = splitLine(readSerialLine(port, 0.5))
-    control = calculateReturnValues(listToFloat(getControlValues(line)), deadzone)
-    tol = getTakeoffLandValues(line)
+    inputs = [[0,0,0,0],[0,0]]
 
-    inputs = [control, tol]
+    if line:
+        control = calculateReturnValues(listToFloat(getControlValues(line)), deadzone)
+        tol = getTakeoffLandValues(line)
+
+        inputs = [control, tol]
 
     return inputs
     
