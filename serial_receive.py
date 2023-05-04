@@ -1,7 +1,6 @@
 from serial import *
 from time import time
 from time import sleep
-
 #the port of the microbit receiver
 microbit = 'COM15'
 
@@ -27,12 +26,12 @@ def readSerialLine(port, timeout):
 
 #separate the list into control and takeoff/land values
 def getControlValues(list):
-    if len(list) == 6:
+    if len(list) == 8:
         return list[0:4]
 
 def getTakeoffLandValues(list):
-    if len(list) == 6:
-        return list[-2:]
+    if len(list) == 8:
+        return list[-4:]
 
 #split the serial line and return an array of values from microbit controllers
 def splitLine(line):
@@ -47,7 +46,7 @@ def checkDeadzone(val, angle):
 #read the serial line, split it and normalise the values before return.
 def returnInputValues():
     line = splitLine(readSerialLine(port, 0.5))
-    inputs = [[0,0,0,0],[0,0]]
+    inputs = [[0,0,0,0],[0,0,0,0]]
 
     if line:
         control = calculateReturnValues(listToFloat(getControlValues(line)), deadzone)
@@ -97,6 +96,8 @@ def testMethod():
         currYaw = 0
         takeoff = 0
         land = 0
+        flip = 0
+        flip2 = 0
         if len(controls) >= 2:
             currPitch = controls[0][0]
             currRoll = controls[0][1]
@@ -104,7 +105,9 @@ def testMethod():
             currYaw = controls[0][3]
             takeoff = controls[1][0]
             land = controls[1][1]
-
+            flip = controls[1][2]
+            flip2 = controls[1][3]
+          
         #if checkDeadzone(currPitch, deadzone):
         print("FB: " + str(currPitch))
         #if checkDeadzone(currRoll, deadzone):
@@ -113,6 +116,9 @@ def testMethod():
         print("Yaw: " + str(currYaw))
         print("Takeoff: " + str(takeoff))
         print("Land: " + str(land))
+        print("Flip F: " + str(flip))
+        print("Flip B: " + str(flip2))
+
 
 #run test method if not imported
 if __name__ == "__main__":
